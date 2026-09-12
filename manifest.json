@@ -1,0 +1,22 @@
+{
+  "name": "KrishiSathi – किसान का अपना साथी",
+  "short_name": "KrishiSathi",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8fbf7",
+  "theme_color": "#237a39",
+  "description": "किसानों के लिए ट्रैक्टर, मशीन, कृषि बाज़ार, मौसम और मंडी सेवाएँ।",
+  "lang": "hi",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
