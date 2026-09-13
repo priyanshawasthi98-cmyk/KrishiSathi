@@ -17,4 +17,25 @@ function profile(){app.innerHTML=`<button class="back" onclick="show('home')">�
 function help(){app.innerHTML=`<button class="back" onclick="show('home')">← वापस</button><h2>🆘 मदद और सहायता</h2><div class="list"><div class="card"><b>बुकिंग कैसे करें?</b><p class="muted">ट्रैक्टर या मशीन चुनें और "बुक" दबाएँ।</p></div><div class="card"><b>पेमेंट कैसे होगा?</b><p class="muted">Production version में payment gateway जोड़ा जाएगा।</p></div></div>`}
 function toast(t){let e=document.getElementById("toast");e.innerText=t;e.style.display="block";setTimeout(()=>e.style.display="none",2200)}
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));show("home");
-</script></body></html>
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDczFlOJz163VC26gG4HS50NO9iRCHRQSA",
+    authDomain: "krishisathi-ab278.firebaseapp.com",
+    projectId: "krishisathi-ab278",
+    storageBucket: "krishisathi-ab278.firebasestorage.app",
+    messagingSenderId: "236150431342",
+    appId: "1:236150431342:web:7f42869ec96a71d0e8d07f",
+    measurementId: "G-561LSGNMYE"
+  };
+
+  const firebaseApp = initializeApp(firebaseConfig);
+
+  console.log("KrishiSathi Firebase Connected ✅");
+</script>
+
+</body>
+</html>
