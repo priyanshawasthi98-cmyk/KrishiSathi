@@ -36,6 +36,142 @@ if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWork
 
   console.log("KrishiSathi Firebase Connected ✅");
 </script>
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
+  const auth = getAuth(getApp());
+
+  document.body.insertAdjacentHTML("afterbegin", `
+    <div id="ksLogin" style="
+      position:fixed;
+      inset:0;
+      z-index:99999;
+      background:#f5f7f2;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      font-family:Arial,sans-serif;
+    ">
+      <div style="
+        background:white;
+        width:100%;
+        max-width:380px;
+        padding:25px;
+        border-radius:18px;
+        box-shadow:0 5px 25px #0002;
+      ">
+        <h2 style="text-align:center;margin:0 0 8px">
+          🌾 KrishiSathi
+        </h2>
+
+        <p style="text-align:center;color:#666">
+          किसान का अपना साथी
+        </p>
+
+        <input id="ksEmail" type="email"
+          placeholder="Email"
+          style="width:100%;padding:13px;margin:8px 0;
+          border:1px solid #ddd;border-radius:10px;box-sizing:border-box">
+
+        <input id="ksPass" type="password"
+          placeholder="Password"
+          style="width:100%;padding:13px;margin:8px 0;
+          border:1px solid #ddd;border-radius:10px;box-sizing:border-box">
+
+        <button id="ksLoginBtn" style="
+          width:100%;padding:13px;margin-top:10px;
+          border:0;border-radius:10px;
+          background:#2e7d32;color:white;font-size:16px;
+        ">🔑 Login</button>
+
+        <button id="ksSignupBtn" style="
+          width:100%;padding:13px;margin-top:10px;
+          border:1px solid #2e7d32;border-radius:10px;
+          background:white;color:#2e7d32;font-size:16px;
+        ">📝 Create Account</button>
+
+        <p id="ksMsg" style="
+          text-align:center;
+          font-size:14px;
+          color:#d32f2f;
+          min-height:20px;
+        "></p>
+      </div>
+    </div>
+  `);
+
+  const loginBox = document.getElementById("ksLogin");
+  const email = document.getElementById("ksEmail");
+  const pass = document.getElementById("ksPass");
+  const msg = document.getElementById("ksMsg");
+
+  document.getElementById("ksSignupBtn").onclick = async () => {
+    msg.innerText = "";
+
+    if (!email.value || !pass.value) {
+      msg.innerText = "Email और Password भरें";
+      return;
+    }
+
+    if (pass.value.length < 6) {
+      msg.innerText = "Password कम से कम 6 characters का होना चाहिए";
+      return;
+    }
+
+    try {
+      await createUserWithEmailAndPassword(
+        auth,
+        email.value.trim(),
+        pass.value
+      );
+      msg.style.color = "#2e7d32";
+      msg.innerText = "✅ Account बन गया!";
+    } catch (error) {
+      msg.style.color = "#d32f2f";
+      msg.innerText = "❌ " + error.message;
+    }
+  };
+
+  document.getElementById("ksLoginBtn").onclick = async () => {
+    msg.innerText = "";
+
+    if (!email.value || !pass.value) {
+      msg.innerText = "Email और Password भरें";
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        email.value.trim(),
+        pass.value
+      );
+    } catch (error) {
+      msg.style.color = "#d32f2f";
+      msg.innerText = "❌ Email या Password गलत है";
+    }
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      loginBox.style.display = "none";
+      console.log("KrishiSathi User Login:", user.email);
+    } else {
+      loginBox.style.display = "flex";
+    }
+  });
+
+  window.ksLogout = async () => {
+    await signOut(auth);
+  };
+</script>
 </body>
 </html>
