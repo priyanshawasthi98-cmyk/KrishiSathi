@@ -173,5 +173,80 @@ if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWork
     await signOut(auth);
   };
 </script>
+  <script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  const appFirebase = getApp();
+  const auth = getAuth(appFirebase);
+  const db = getFirestore(appFirebase);
+
+  const pass = document.getElementById("ksPass");
+  const signupBtn = document.getElementById("ksSignupBtn");
+  const msg = document.getElementById("ksMsg");
+
+  const roleBox = document.createElement("select");
+  roleBox.id = "ksRole";
+  roleBox.innerHTML = `
+    <option value="farmer">👨‍🌾 किसान</option>
+    <option value="tractor_owner">🚜 Tractor Owner</option>
+  `;
+  roleBox.style.cssText =
+    "width:100%;padding:13px;margin:8px 0;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;background:white";
+
+  pass.insertAdjacentElement("afterend", roleBox);
+
+  signupBtn.onclick = async () => {
+    msg.style.color = "#d32f2f";
+    msg.innerText = "";
+
+    const email = document.getElementById("ksEmail").value.trim();
+    const password = pass.value;
+    const role = roleBox.value;
+
+    if (!email || !password) {
+      msg.innerText = "Email और Password भरें";
+      return;
+    }
+
+    if (password.length < 6) {
+      msg.innerText = "Password कम से कम 6 characters का होना चाहिए";
+      return;
+    }
+
+    try {
+      const result = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      await setDoc(doc(db, "users", result.user.uid), {
+        email: email,
+        role: role,
+        createdAt: serverTimestamp()
+      });
+
+      msg.style.color = "#2e7d32";
+      msg.innerText =
+        role === "farmer"
+          ? "✅ किसान Account बन गया!"
+          : "✅ Tractor Owner Account बन गया!";
+
+    } catch (error) {
+      msg.style.color = "#d32f2f";
+      msg.innerText = "❌ " + error.message;
+    }
+  };
+  </script>
 </body>
 </html>
