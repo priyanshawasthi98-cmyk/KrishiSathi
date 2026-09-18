@@ -248,5 +248,166 @@ if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWork
     }
   };
   </script>
+  <script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    addDoc,
+    collection,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  const firebaseApp = getApp();
+  const auth = getAuth(firebaseApp);
+  const db = getFirestore(firebaseApp);
+
+  async function checkOwner(user) {
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+
+    if (!userSnap.exists()) return;
+
+    const userData = userSnap.data();
+
+    if (userData.role === "tractor_owner") {
+      showOwnerDashboard(user);
+    }
+  }
+
+  function showOwnerDashboard(user) {
+    app.innerHTML = `
+      <button class="back" onclick="show('home')">← वापस</button>
+
+      <div class="hero">
+        <div>🚜 Tractor Owner</div>
+        <h1>Owner Dashboard</h1>
+        <p>अपने ट्रैक्टर और बुकिंग संभालें</p>
+      </div>
+
+      <div class="grid">
+        <div class="card service" onclick="addTractorForm()">
+          <div class="emoji">➕</div>
+          <h3>ट्रैक्टर जोड़ें</h3>
+          <p class="muted">अपना ट्रैक्टर register करें</p>
+        </div>
+
+        <div class="card">
+          <div class="emoji">📋</div>
+          <h3>Booking Requests</h3>
+          <p class="muted">जल्द उपलब्ध होगा</p>
+        </div>
+
+        <div class="card">
+          <div class="emoji">💰</div>
+          <h3>Earnings</h3>
+          <p class="muted">जल्द उपलब्ध होगा</p>
+        </div>
+
+        <div class="card">
+          <div class="emoji">🚜</div>
+          <h3>My Tractors</h3>
+          <p class="muted">Registered tractors</p>
+        </div>
+      </div>
+
+      <div class="section">👤 Owner</div>
+      <div class="card">
+        <b>${user.email}</b>
+      </div>
+    `;
+  }
+
+  window.addTractorForm = function() {
+    app.innerHTML = `
+      <button class="back" onclick="showOwnerDashboardAgain()">← वापस</button>
+
+      <h2>🚜 अपना ट्रैक्टर जोड़ें</h2>
+
+      <div class="card">
+
+        <label>Tractor Company</label>
+        <input id="tractorCompany"
+          class="search"
+          placeholder="जैसे Mahindra">
+
+        <label>Tractor Model</label>
+        <input id="tractorModel"
+          class="search"
+          placeholder="जैसे 575 DI">
+
+        <label>किराया (₹ प्रति घंटा)</label>
+        <input id="tractorRent"
+          class="search"
+          type="number"
+          placeholder="जैसे 700">
+
+        <label>Location</label>
+        <input id="tractorLocation"
+          class="search"
+          placeholder="गाँव / शहर">
+
+        <button class="btn primary"
+          style="width:100%;padding:14px"
+          onclick="saveTractor()">
+          🚜 Tractor Register करें
+        </button>
+
+        <p id="tractorMsg"
+          style="text-align:center;min-height:20px"></p>
+      </div>
+    `;
+  };
+
+  window.saveTractor = async function() {
+    const user = auth.currentUser;
+    const msg = document.getElementById("tractorMsg");
+
+    const company = document.getElementById("tractorCompany").value.trim();
+    const model = document.getElementById("tractorModel").value.trim();
+    const rent = document.getElementById("tractorRent").value.trim();
+    const location = document.getElementById("tractorLocation").value.trim();
+
+    if (!company || !model || !rent || !location) {
+      msg.style.color = "#d32f2f";
+      msg.innerText = "❌ सभी जानकारी भरें";
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "tractors"), {
+        ownerId: user.uid,
+        ownerEmail: user.email,
+        company: company,
+        model: model,
+        rentPerHour: Number(rent),
+        location: location,
+        status: "available",
+        createdAt: serverTimestamp()
+      });
+
+      msg.style.color = "#2e7d32";
+      msg.innerText = "✅ Tractor successfully register हो गया!";
+
+    } catch (error) {
+      console.error(error);
+      msg.style.color = "#d32f2f";
+      msg.innerText = "❌ " + error.message;
+    }
+  };
+
+  window.showOwnerDashboardAgain = function() {
+    if (auth.currentUser) {
+      showOwnerDashboard(auth.currentUser);
+    }
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      checkOwner(user);
+    }
+  });
+</script>
 </body>
 </html>
